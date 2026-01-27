@@ -158,11 +158,33 @@ STOCK_API_KEY="your_stock_api_key"
 - [x] 创建基础 UI 界面
 - [x] 集成 Vercel Postgres 数据库
 - [x] 配置 Vercel 部署
+- [x] 解决部署依赖问题
 - [ ] 实现真实 A 股数据获取
 - [ ] 添加图表可视化功能
 - [ ] 实现用户自选股功能
 - [ ] 添加技术指标分析
 - [ ] 添加数据导出功能
+
+## 部署故障排除
+
+### npm install 退出码 1 的解决方案
+
+如果在 Vercel 部署过程中遇到 `command npm install exited with 1` 错误，请检查以下几点：
+
+1. **依赖冲突**：
+   - 确保 package.json 中的依赖版本兼容
+   - 检查是否有不兼容的包版本
+
+2. **Node 版本**：
+   - 项目要求 Node.js >= 18.17.0
+   - 在 Vercel 项目设置中选择正确的 Node 版本
+
+3. **内存限制**：
+   - 某些函数可能超出默认内存限制
+   - 已在 vercel.json 中增加 API 路由内存至 1024MB
+
+4. **构建超时**：
+   - 已在 vercel.json 中将最大持续时间设为 30 秒
 
 ## 许可证
 
