@@ -1,0 +1,30 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model StockRecord {
+  id             Int      @id @default(autoincrement())
+  symbol         String   // 股票代码
+  name           String   // 股票名称
+  openPrice      Float?   // 开盘价
+  closePrice     Float?   // 收盘价
+  changePercent  Float?   // 涨跌幅
+  volatility     Float?   // 振幅
+  volume         BigInt?  // 成交量
+  turnover       BigInt?  // 成交额
+  highPrice      Float?   // 最高价
+  lowPrice       Float?   // 最低价
+  prevClose      Float?   // 昨收价
+  peRatio        Float?   // 市盈率
+  pbRatio        Float?   // 市净率
+  marketCap      BigInt?  // 市值
+  updatedAt      DateTime @default(now()) @map("updated_at")
+  
+  @@map("stock_records")
+}

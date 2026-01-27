@@ -8,12 +8,19 @@ export interface StockRecord {
   volatility: number;
   volume: number;
   turnover: number;
+  highPrice?: number;
+  lowPrice?: number;
+  prevClose?: number;
+  peRatio?: number;
+  pbRatio?: number;
+  marketCap?: number;
+  updated?: string;
 }
 
 export interface StockData {
   topGainers: StockRecord[];
   topLosers: StockRecord[];
-  marketOverview: {
+  marketOverview?: {
     risingCount: number;
     fallingCount: number;
     flatCount: number;

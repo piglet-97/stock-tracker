@@ -30,7 +30,7 @@ export async function getStockData(): Promise<StockData> {
     return {
       topGainers: [],
       topLosers: [],
-      updateTime: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
     };
   }
 }

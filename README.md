@@ -17,8 +17,8 @@
 - **样式**: Tailwind CSS
 - **UI 组件**: shadcn/ui
 - **数据获取**: Next.js API Routes
+- **数据库**: Vercel Postgres
 - **类型检查**: TypeScript
-- **数据库**: Prisma + SQLite/PostgreSQL (待实现)
 
 ## 数据指标说明
 
@@ -52,6 +52,7 @@ stock-tracker/
 │   └── StockTable.tsx    # 股票表格组件
 ├── lib/                  # 工具函数
 │   ├── utils.ts          # 通用工具函数
+│   ├── db.ts             # Vercel Postgres 数据库配置
 │   └── stock-service.ts  # 股票数据服务
 ├── types/                # TypeScript 类型定义
 │   └── stock.ts          # 股票数据类型
@@ -59,7 +60,7 @@ stock-tracker/
 └── README.md
 ```
 
-## 安装和运行
+## 本地开发
 
 1. 克隆项目：
 ```bash
@@ -72,38 +73,96 @@ cd stock-tracker
 npm install
 ```
 
-3. 启动开发服务器：
+3. 配置环境变量：
+```bash
+cp .env.example .env.local
+# 编辑 .env.local 并填入 Vercel Postgres 连接信息
+```
+
+4. 启动开发服务器：
 ```bash
 npm run dev
 ```
 
-4. 访问 http://localhost:3000 查看应用
+5. 访问 http://localhost:3000 查看应用
 
-## 环境配置
+## Vercel 部署
 
-创建 `.env.local` 文件并配置以下变量：
+### 1. 部署到 Vercel
 
-```env
-DATABASE_URL="your_database_url"
-STOCK_API_KEY="your_stock_api_key"
+点击下方按钮一键部署：
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/piglet-97/stock-tracker)
+
+### 2. 配置 Vercel Postgres 数据库
+
+1. 在 Vercel 仪表板中，导航到您的项目
+2. 进入 Settings > Storage > Connect to Postgres
+3. 创建一个新的 Postgres 数据库或连接现有数据库
+4. 在 Environment Variables 中添加数据库连接信息：
+   - `POSTGRES_URL`: 主连接字符串
+   - `POSTGRES_URL_NON_POOLING`: 非连接池连接字符串
+
+### 3. 数据库 Schema
+
+部署后，需要运行以下命令初始化数据库表：
+
+```sql
+CREATE TABLE IF NOT EXISTS stock_records (
+  id SERIAL PRIMARY KEY,
+  symbol VARCHAR(20) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  open_price DECIMAL(10, 2),
+  close_price DECIMAL(10, 2),
+  change_percent DECIMAL(5, 2),
+  volatility DECIMAL(5, 2),
+  volume BIGINT,
+  turnover BIGINT,
+  high_price DECIMAL(10, 2),
+  low_price DECIMAL(10, 2),
+  prev_close DECIMAL(10, 2),
+  pe_ratio DECIMAL(8, 2),
+  pb_ratio DECIMAL(8, 2),
+  market_cap BIGINT,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_symbol ON stock_records(symbol);
+CREATE INDEX idx_updated_at ON stock_records(updated_at);
 ```
 
 ## API 接口
 
 - `GET /api/stocks` - 获取最新股票数据
 
+## 环境配置
+
+创建 `.env.local` 文件并配置以下变量：
+
+```env
+POSTGRES_URL="your_vercel_postgres_url"
+POSTGRES_URL_NON_POOLING="your_vercel_postgres_non_pooling_url"
+STOCK_API_KEY="your_stock_api_key"
+```
+
+## 数据更新机制
+
+系统计划通过以下方式定期更新数据：
+
+1. 使用 Next.js 的 revalidation 功能每小时更新一次
+2. 通过定时任务在每个交易日收盘后批量更新数据
+3. 可选：使用 WebSocket 连接实时数据源
+
 ## 待办事项
 
-- [ ] 集成真实 A 股数据 API
-- [ ] 添加数据库存储功能
-- [ ] 实现定时任务获取收盘数据
+- [x] 创建基础 UI 界面
+- [x] 集成 Vercel Postgres 数据库
+- [x] 配置 Vercel 部署
+- [ ] 实现真实 A 股数据获取
 - [ ] 添加图表可视化功能
 - [ ] 实现用户自选股功能
 - [ ] 添加技术指标分析
-
-## 部署
-
-该项目可部署到 Vercel、Netlify 或其他支持 Next.js 的平台。
+- [ ] 添加数据导出功能
 
 ## 许可证
 
