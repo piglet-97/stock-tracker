@@ -1,32 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from 'next/font/google';
 import "./globals.css";
+import { cn } from '@/lib/utils';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "A-Share Stock Tracker - Top Gainers & Losers",
-  description: "Track and analyze Chinese A-shares market with real-time data on top gainers and losers",
+  title: "A股涨跌幅榜追踪",
+  description: "实时追踪A股市场每日涨跌幅榜前20名",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="zh-CN">
+      <body className={cn(inter.className, 'min-h-screen bg-background font-sans antialiased')}>
         {children}
       </body>
     </html>
