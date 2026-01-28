@@ -1,15 +1,24 @@
 import { StockRecord } from '@/types/stock';
 import { sql } from '@vercel/postgres';
+import { fetchRealAStockData } from './real-stock-data-fetcher';
 
-// 模拟A股数据API获取函数
-// 实际部署时可以替换为真实的数据提供商API
+// 获取A股数据 - 优先使用真实数据，失败时回退到模拟数据
 export async function fetchAStockData(date: string): Promise<StockRecord[]> {
-  // 这里应该调用真实的A股数据API
-  // 为了演示，我们返回模拟数据
   console.log(`Fetching A-share data for date: ${date}`);
   
-  // 实际实现时，这里应该调用真实的数据提供商API
-  // 例如：tongyi financial API, iFinD, TuShare等
+  try {
+    // 尝试获取真实数据
+    const realData = await fetchRealAStockData(date);
+    if (realData && realData.length > 0) {
+      console.log(`Successfully fetched ${realData.length} real stock records for ${date}`);
+      return realData;
+    }
+  } catch (error) {
+    console.error(`Failed to fetch real stock data for ${date}:`, error);
+    console.log('Falling back to mock data');
+  }
+  
+  // 如果真实数据获取失败，返回模拟数据
   return generateMockAStockData(date);
 }
 
@@ -63,25 +72,36 @@ function generateMockAStockData(date: string): StockRecord[] {
   });
 }
 
+import { fetchRecentRealAStockData } from './real-stock-data-fetcher';
+
 // 获取最近N天的数据
 export async function fetchRecentAStockData(days: number = 7): Promise<Record<string, StockRecord[]>> {
-  const results: Record<string, StockRecord[]> = {};
-  
-  for (let i = 0; i < days; i++) {
-    // 计算日期 (跳过周末，简单模拟)
-    const date = new Date();
-    date.setDate(date.getDate() - i);
+  try {
+    // 优先使用真实数据
+    const realData = await fetchRecentRealAStockData(days);
+    return realData;
+  } catch (error) {
+    console.error('Failed to fetch recent real stock data:', error);
+    console.log('Falling back to generating mock data for recent days');
     
-    // 简单跳过周末（实际应检查节假日）
-    if (date.getDay() === 0 || date.getDay() === 6) {
-      continue;
+    const results: Record<string, StockRecord[]> = {};
+    
+    for (let i = 0; i < days; i++) {
+      // 计算日期 (跳过周末，简单模拟)
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      
+      // 简单跳过周末（实际应检查节假日）
+      if (date.getDay() === 0 || date.getDay() === 6) {
+        continue;
+      }
+      
+      const dateString = date.toISOString().split('T')[0];
+      results[dateString] = await fetchAStockData(dateString);
     }
     
-    const dateString = date.toISOString().split('T')[0];
-    results[dateString] = await fetchAStockData(dateString);
+    return results;
   }
-  
-  return results;
 }
 
 // 将数据保存到数据库

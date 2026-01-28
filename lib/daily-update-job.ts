@@ -31,10 +31,6 @@ export async function runDailyUpdate(): Promise<void> {
     
     console.log(`Starting daily update for date: ${dateStr}`);
     
-    // 检查数据库中是否已存在当天数据
-    // 如果存在则跳过，避免重复更新
-    // 注意：这里需要根据实际情况调整检查逻辑
-    
     // 获取A股数据
     const stockData = await fetchAStockData(dateStr);
     
@@ -95,4 +91,49 @@ export async function shouldUpdateToday(): Promise<boolean> {
     console.error('Error checking if update is needed:', error);
     return false;
   }
+}
+
+// 设置定时任务，在每个交易日下午3点(15:00)执行更新
+export function scheduleDailyUpdate() {
+  console.log('Setting up daily update scheduler...');
+  
+  // 在实际部署环境中，这通常由服务器定时任务或云函数触发
+  // 这里只是设置定时器的示例
+  
+  // 计算到下一个交易日下午3点的时间差
+  const now = new Date();
+  const nextUpdate = new Date(now);
+  
+  // 设置到下午3点
+  nextUpdate.setHours(15, 0, 0, 0);
+  
+  // 如果现在已经过了下午3点，则设置为明天
+  if (now.getHours() >= 15) {
+    nextUpdate.setDate(nextUpdate.getDate() + 1);
+  }
+  
+  // 如果明天不是交易日，则继续往后推
+  while (!isTradingDay(nextUpdate)) {
+    nextUpdate.setDate(nextUpdate.getDate() + 1);
+  }
+  
+  const timeDiff = nextUpdate.getTime() - now.getTime();
+  
+  console.log(`Next scheduled update: ${nextUpdate.toLocaleString()}`);
+  console.log(`Time until next update: ${Math.round(timeDiff / (1000 * 60 * 60))} hours`);
+  
+  // 设置定时器
+  setTimeout(async () => {
+    try {
+      console.log('Executing scheduled daily update...');
+      await runDailyUpdate();
+      
+      // 递归设置下次更新
+      scheduleDailyUpdate();
+    } catch (error) {
+      console.error('Error in scheduled daily update:', error);
+      // 即使失败也继续设置下次更新
+      scheduleDailyUpdate();
+    }
+  }, timeDiff);
 }
