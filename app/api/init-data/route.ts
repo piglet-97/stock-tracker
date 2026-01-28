@@ -4,8 +4,10 @@ import { fetchRecentAStockData, saveStockDataToDatabase } from '@/lib/stock-data
 export async function GET(request: NextRequest) {
   try {
     // 获取查询参数（天数，默认7天）
-    const url = new URL(request.url);
-    const days = parseInt(url.searchParams.get('days') || '7');
+    // 修复动态服务器使用错误：使用相对路径解析查询参数
+    const { searchParams } = new URL(request.url);
+    const daysParam = searchParams.get('days');
+    const days = daysParam ? parseInt(daysParam) : 7;
     
     console.log(`Initializing stock data for last ${days} days`);
     

@@ -2,13 +2,37 @@ import { StockRecord } from '@/types/stock';
 import { sql } from '@vercel/postgres';
 import { chromium } from 'playwright';
 
+// 检查是否在服务器环境（Vercel）中
+const isServerEnvironment = typeof window === 'undefined';
+const isVercelEnvironment = !!process.env.VERCEL;
+
 // 从东方财富网获取真实的A股数据
 export async function fetchRealAStockData(date: string): Promise<StockRecord[]> {
   console.log(`Fetching real A-share data for date: ${date}`);
   
+  // 如果在Vercel等服务器环境中，由于Playwright可能无法正常工作，直接返回模拟数据
+  if (isVercelEnvironment || !isServerEnvironment) {
+    console.log('Running in serverless environment, using mock data');
+    return generateMockAStockData(date);
+  }
+  
   let browser;
   try {
-    browser = await chromium.launch({ headless: true });
+    // 尝试启动浏览器
+    browser = await chromium.launch({ 
+      headless: true,
+      // 在某些环境下可能需要添加额外参数
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+      ]
+    });
+    
     const page = await browser.newPage();
     
     // 设置请求头，模拟真实浏览器
@@ -70,29 +94,39 @@ export async function fetchRealAStockData(date: string): Promise<StockRecord[]> 
     await browser.close();
     
     // 转换为StockRecord格式
-    return stockData.map((item: any, index) => ({
-      id: index + 1,
-      symbol: item.symbol,
-      name: item.name,
-      openPrice: parseFloat(item.estimatedOpen.toFixed(2)),
-      closePrice: parseFloat(item.price.toFixed(2)),
-      changePercent: parseFloat(item.changePercent.toFixed(2)),
-      volatility: parseFloat(Math.abs(item.changePercent).toFixed(2)),
-      volume: item.estimatedVolume,
-      turnover: item.estimatedTurnover,
-      highPrice: parseFloat(item.estimatedHigh.toFixed(2)),
-      lowPrice: parseFloat(item.estimatedLow.toFixed(2)),
-      prevClose: parseFloat(item.estimatedPrevClose.toFixed(2)),
-      peRatio: null, // 需要从个股详情获取
-      pbRatio: null, // 需要从个股详情获取
-      marketCap: null, // 需要从个股详情获取
-      updated: new Date().toISOString(),
-    }));
+    if (stockData && stockData.length > 0) {
+      return stockData.map((item: any, index) => ({
+        id: index + 1,
+        symbol: item.symbol,
+        name: item.name,
+        openPrice: parseFloat(item.estimatedOpen.toFixed(2)),
+        closePrice: parseFloat(item.price.toFixed(2)),
+        changePercent: parseFloat(item.changePercent.toFixed(2)),
+        volatility: parseFloat(Math.abs(item.changePercent).toFixed(2)),
+        volume: item.estimatedVolume,
+        turnover: item.estimatedTurnover,
+        highPrice: parseFloat(item.estimatedHigh.toFixed(2)),
+        lowPrice: parseFloat(item.estimatedLow.toFixed(2)),
+        prevClose: parseFloat(item.estimatedPrevClose.toFixed(2)),
+        peRatio: null, // 需要从个股详情获取
+        pbRatio: null, // 需要从个股详情获取
+        marketCap: null, // 需要从个股详情获取
+        updated: new Date().toISOString(),
+      }));
+    } else {
+      // 如果没有获取到数据，返回模拟数据
+      console.log('No real data fetched, falling back to mock data');
+      return generateMockAStockData(date);
+    }
   } catch (error) {
     console.error('Error fetching real stock data:', error);
     // 如果获取真实数据失败，回退到模拟数据
     console.log('Falling back to mock data due to error');
-    await browser?.close();
+    try {
+      await browser?.close();
+    } catch (closeError) {
+      console.error('Error closing browser:', closeError);
+    }
     return generateMockAStockData(date);
   }
 }
@@ -172,9 +206,26 @@ function generateMockAStockData(date: string): StockRecord[] {
 export async function fetchTopGainersFromEastMoney(): Promise<StockRecord[]> {
   console.log('Fetching top gainers from East Money website');
   
+  // 如果在Vercel等服务器环境中，由于Playwright可能无法正常工作，返回空数组
+  if (isVercelEnvironment || !isServerEnvironment) {
+    console.log('Running in serverless environment, returning empty array for top gainers');
+    return [];
+  }
+  
   let browser;
   try {
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch({ 
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+      ]
+    });
     const page = await browser.newPage();
     
     // 设置请求头，模拟真实浏览器
@@ -220,28 +271,36 @@ export async function fetchTopGainersFromEastMoney(): Promise<StockRecord[]> {
     await browser.close();
     
     // 转换为StockRecord格式
-    return topGainers.map((item: any, index) => ({
-      id: index + 1,
-      symbol: item.symbol,
-      name: item.name,
-      openPrice: parseFloat((item.price / (1 + item.changePercent/100)).toFixed(2)),
-      closePrice: parseFloat(item.price.toFixed(2)),
-      changePercent: parseFloat(item.changePercent.toFixed(2)),
-      volatility: parseFloat(Math.abs(item.changePercent).toFixed(2)),
-      volume: Math.floor(Math.random() * 10000000) + 1000000, // 估算值
-      turnover: Math.floor(item.price * (Math.floor(Math.random() * 10000000) + 1000000)), // 估算值
-      highPrice: parseFloat((item.price * 1.02).toFixed(2)), // 估算值
-      lowPrice: parseFloat((item.price * 0.98).toFixed(2)), // 估算值
-      prevClose: parseFloat((item.price / (1 + item.changePercent/100)).toFixed(2)),
-      peRatio: null, // 需要从个股详情获取
-      pbRatio: null, // 需要从个股详情获取
-      marketCap: null, // 需要从个股详情获取
-      updated: new Date().toISOString(),
-    }));
+    if (topGainers && topGainers.length > 0) {
+      return topGainers.map((item: any, index) => ({
+        id: index + 1,
+        symbol: item.symbol,
+        name: item.name,
+        openPrice: parseFloat((item.price / (1 + item.changePercent/100)).toFixed(2)),
+        closePrice: parseFloat(item.price.toFixed(2)),
+        changePercent: parseFloat(item.changePercent.toFixed(2)),
+        volatility: parseFloat(Math.abs(item.changePercent).toFixed(2)),
+        volume: Math.floor(Math.random() * 10000000) + 1000000, // 估算值
+        turnover: Math.floor(item.price * (Math.floor(Math.random() * 10000000) + 1000000)), // 估算值
+        highPrice: parseFloat((item.price * 1.02).toFixed(2)), // 估算值
+        lowPrice: parseFloat((item.price * 0.98).toFixed(2)), // 估算值
+        prevClose: parseFloat((item.price / (1 + item.changePercent/100)).toFixed(2)),
+        peRatio: null, // 需要从个股详情获取
+        pbRatio: null, // 需要从个股详情获取
+        marketCap: null, // 需要从个股详情获取
+        updated: new Date().toISOString(),
+      }));
+    } else {
+      return [];
+    }
   } catch (error) {
     console.error('Error fetching top gainers from East Money:', error);
-    await browser?.close();
-    // 返回空数组或模拟数据
+    try {
+      await browser?.close();
+    } catch (closeError) {
+      console.error('Error closing browser:', closeError);
+    }
+    // 返回空数组
     return [];
   }
 }
