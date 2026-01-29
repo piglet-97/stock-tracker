@@ -48,7 +48,7 @@ const mockTopLosers: StockRecord[] = [
   { id: 10, symbol: '601818', name: '光大银行', openPrice: 3.60, closePrice: 3.35, changePercent: -6.94, volatility: 4.23, volume: 67890123, turnover: 227123456, peRatio: 4.5, pbRatio: 0.5, marketCap: 180000000000, highPrice: 3.70, lowPrice: 3.30, prevClose: 3.60 },
 ];
 
-export default function HomePage() {
+export default function EnhancedHomePage() {
   const [topGainers, setTopGainers] = useState<StockRecord[]>(mockTopGainers);
   const [topLosers, setTopLosers] = useState<StockRecord[]>(mockTopLosers);
   const [lastUpdated, setLastUpdated] = useState<string>(new Date().toLocaleString('zh-CN'));
