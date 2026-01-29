@@ -10,7 +10,7 @@ import {
   TrendingDown, 
   DollarSign, 
   Calculator, 
-  Scale, 
+  Scale as Scale3D,
   Building,
   ChevronUp,
   ChevronDown,
@@ -53,8 +53,8 @@ export function EnhancedStockTable({ stocks, type, sortConfig, requestSort }: En
     return volume.toString();
   };
 
-  const formatMarketCap = (marketCap?: number) => {
-    if (!marketCap) return 'N/A';
+  const formatMarketCap = (marketCap?: number | null) => {
+    if (!marketCap || marketCap === null) return 'N/A';
     if (marketCap >= 1000000000000) {
       return `${(marketCap / 1000000000000).toFixed(2)}万亿`;
     } else if (marketCap >= 1000000000) {
@@ -65,19 +65,19 @@ export function EnhancedStockTable({ stocks, type, sortConfig, requestSort }: En
     return `${(marketCap / 10000).toFixed(2)}万`;
   };
 
-  const formatPE = (pe?: number) => {
-    if (!pe || pe <= 0) return 'N/A';
+  const formatPE = (pe?: number | null) => {
+    if (!pe || pe <= 0 || pe === null) return 'N/A';
     return pe.toFixed(2);
   };
 
-  const formatPB = (pb?: number) => {
-    if (!pb || pb <= 0) return 'N/A';
+  const formatPB = (pb?: number | null) => {
+    if (!pb || pb <= 0 || pb === null) return 'N/A';
     return pb.toFixed(2);
   };
 
-  const formatHighLow = (high?: number, low?: number) => {
-    if (!high || !low) return 'N/A';
-    return `${formatNumber(low)} - ${formatNumber(high)}`;
+  const formatHighLow = (high?: number | null, low?: number | null) => {
+    if (!high || !low || high === null || low === null) return 'N/A';
+    return `${formatNumber(low!)} - ${formatNumber(high!)}`;
   };
 
   const getSortIndicator = (columnName: keyof StockRecord) => {
@@ -298,10 +298,10 @@ export function EnhancedStockTable({ stocks, type, sortConfig, requestSort }: En
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Scale className="h-3.5 w-3.5 text-gray-400" />
+                      <Scale3D className="h-3.5 w-3.5 text-gray-400" />
                       <span className={`${
-                        stock.peRatio && stock.peRatio > 0 && stock.peRatio < 5 ? 'text-orange-600' :
-                        stock.peRatio && stock.peRatio > 50 ? 'text-red-600' : 'text-blue-600'
+                        stock.peRatio && stock.peRatio !== null && stock.peRatio > 0 && stock.peRatio < 5 ? 'text-orange-600' :
+                        stock.peRatio && stock.peRatio !== null && stock.peRatio > 50 ? 'text-red-600' : 'text-blue-600'
                       }`}>
                         {formatPE(stock.peRatio)}
                       </span>

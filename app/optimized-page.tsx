@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { OptimizedStockTable } from '@/components/OptimizedStockTable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, BarChart3, Star, Search, TrendingUp, TrendingDown } from 'lucide-react';
+import { RefreshCw, BarChart3, Star, Search, TrendingUp, TrendingDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { StockData, StockRecord } from '@/types/stock';

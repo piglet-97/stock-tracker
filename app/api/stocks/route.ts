@@ -33,12 +33,12 @@ export async function GET(request: NextRequest) {
         volatility: Number(row.volatility),
         volume: Number(row.volume),
         turnover: Number(row.turnover),
-        highPrice: row.high_price ? Number(row.high_price) : undefined,
-        lowPrice: row.low_price ? Number(row.low_price) : undefined,
-        prevClose: row.prev_close ? Number(row.prev_close) : undefined,
-        peRatio: row.pe_ratio ? Number(row.pe_ratio) : undefined,
-        pbRatio: row.pb_ratio ? Number(row.pb_ratio) : undefined,
-        marketCap: row.market_cap ? Number(row.market_cap) : undefined,
+        highPrice: row.high_price !== null ? Number(row.high_price) : null,
+        lowPrice: row.low_price !== null ? Number(row.low_price) : null,
+        prevClose: row.prev_close !== null ? Number(row.prev_close) : null,
+        peRatio: row.pe_ratio !== null ? Number(row.pe_ratio) : null,
+        pbRatio: row.pb_ratio !== null ? Number(row.pb_ratio) : null,
+        marketCap: row.market_cap !== null ? Number(row.market_cap) : null,
         updated: row.updated_at
       })),
       topLosers: topLosers.map(row => ({
@@ -51,12 +51,12 @@ export async function GET(request: NextRequest) {
         volatility: Number(row.volatility),
         volume: Number(row.volume),
         turnover: Number(row.turnover),
-        highPrice: row.high_price ? Number(row.high_price) : undefined,
-        lowPrice: row.low_price ? Number(row.low_price) : undefined,
-        prevClose: row.prev_close ? Number(row.prev_close) : undefined,
-        peRatio: row.pe_ratio ? Number(row.pe_ratio) : undefined,
-        pbRatio: row.pb_ratio ? Number(row.pb_ratio) : undefined,
-        marketCap: row.market_cap ? Number(row.market_cap) : undefined,
+        highPrice: row.high_price !== null ? Number(row.high_price) : null,
+        lowPrice: row.low_price !== null ? Number(row.low_price) : null,
+        prevClose: row.prev_close !== null ? Number(row.prev_close) : null,
+        peRatio: row.pe_ratio !== null ? Number(row.pe_ratio) : null,
+        pbRatio: row.pb_ratio !== null ? Number(row.pb_ratio) : null,
+        marketCap: row.market_cap !== null ? Number(row.market_cap) : null,
         updated: row.updated_at
       })),
       marketOverview: {
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
         totalDown: Number(marketOverview.total_down) || 0,
         totalSame: Number(marketOverview.total_same) || 0,
         totalVolume: Number(marketOverview.total_volume) || 0,
-        totalTurnover: Number(marketOverview.total_turnover) || 0,
+        totalTurnover: String(marketOverview.total_turnover) || '0',
       },
       updateTime: new Date().toISOString()
     };

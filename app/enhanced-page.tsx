@@ -13,8 +13,8 @@ import {
   DollarSign, 
   BarChart3,
   Filter,
-  SortAsc,
-  SortDesc
+  ArrowUpNarrowWide as SortAsc,
+  ArrowDownWideNarrow as SortDesc
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -164,9 +164,7 @@ export default function EnhancedHomePage() {
       const acpClient = new OpenCodeACPClient();
       await acpClient.connect('./code/stock-tracker');
       
-      // Analyze and potentially modify the project
-      const analysis = await acpClient.analyzeAndModifyProject('./code/stock-tracker');
-      console.log('ACP Analysis completed:', analysis);
+      console.log('ACP connection established');
       
       setAcpStatus('connected');
       await acpClient.disconnect();
