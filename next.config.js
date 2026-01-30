@@ -1,20 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  trailingSlash: true, // 确保URL以斜杠结尾
-  experimental: {
-    serverComponentsExternalPackages: ["@libsql/client"],
-  },
-  // 确保静态资源正确处理
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      // 避免客户端代码中出现服务端代码
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-      };
-    }
-    return config;
-  },
+  // 最小化配置，避免任何可能导致路径问题的设置
+  // 移除所有实验性功能和自定义webpack配置
 };
 
 module.exports = nextConfig;
