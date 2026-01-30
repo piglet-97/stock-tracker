@@ -1,6 +1,9 @@
 import { NextRequest } from 'next/server';
 import { runDailyUpdate, shouldUpdateToday } from '@/lib/daily-update-job';
 
+// 明确标记为动态路由，避免静态渲染错误
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // 检查是否应该更新

@@ -3,6 +3,9 @@ import { sql } from '@vercel/postgres';
 import { StockData } from '@/types/stock';
 import { getLatestStockData } from '@/lib/stock-data-fetcher';
 
+// 明确标记为动态路由，避免静态渲染错误
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // 从数据库获取最新的涨幅榜和跌幅榜数据

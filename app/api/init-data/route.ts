@@ -1,6 +1,9 @@
 import { NextRequest } from 'next/server';
 import { fetchRecentAStockData, saveStockDataToDatabase } from '@/lib/stock-data-fetcher';
 
+// 明确标记为动态路由，避免静态渲染错误
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // 获取查询参数（天数，默认7天）
