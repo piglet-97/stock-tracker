@@ -1,7 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 最小化配置，避免任何可能导致路径问题的设置
-  // 移除所有实验性功能和自定义webpack配置
+  experimental: {
+    serverComponentsExternalPackages: ["@libsql/client"],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+    }
+    return config;
+  },
 };
 
 module.exports = nextConfig;
