@@ -27,7 +27,7 @@ interface EnhancedStockTableProps {
   requestSort: (key: keyof StockRecord) => void;
 }
 
-export function EnhancedStockTable({ stocks, type, sortConfig, requestSort }: EnhancedStockTableProps) {
+export function EnhancedStockTable({ stocks = [], type, sortConfig, requestSort }: EnhancedStockTableProps) {
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('zh-CN', {
       minimumFractionDigits: 2,

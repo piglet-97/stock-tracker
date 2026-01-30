@@ -10,7 +10,7 @@ interface StockTableProps {
   type: 'gainer' | 'loser';
 }
 
-export function StockTable({ stocks, type }: StockTableProps) {
+export function StockTable({ stocks = [], type }: StockTableProps) {
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('zh-CN', {
       minimumFractionDigits: 2,
