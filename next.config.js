@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // 使用静态导出以避免动态路由问题
   trailingSlash: true, // 确保URL以斜杠结尾
   experimental: {
     serverComponentsExternalPackages: ["@libsql/client"],
